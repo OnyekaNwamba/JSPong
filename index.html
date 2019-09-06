@@ -7,10 +7,18 @@
 <body>
 	<canvas id="canvas" width="500" height="500"></canvas>
 	<script>
-		var canvas = document.getElementById("canvas");
+
+        const FONT_NAME = 'font';
+
+        document.fonts.load('10pt "font"').then(renderText);
+
+		let canvas = document.getElementById("canvas");
         canvas.width = window.outerWidth;
         canvas.height = window.innerHeight;
-		var ctx = canvas.getContext("2d");
+		let ctx = canvas.getContext("2d");
+		//ctx.font = "67px font";
+		//ctx.fillText("Press Enter to start",window.innerWidth/2,window.innerHeight/2);
+
 		function paddle(x, y, width, height) {
 			this.x = x;
 			this.y = y;
@@ -50,7 +58,7 @@
 		//var ai = new paddle (610, 200, 25, 100);
 		var player = new paddle(20, 200, 25, 125);
     var ai = new paddle(canvas.width-45, 200, 25, 125);
-		var ball = { x: 320, y: 240, radius: 7, xSpeed: 4, ySpeed: 0,
+	var ball = { x: 320, y: 240, radius: 7, xSpeed: 5, ySpeed: 0,
 			reverseX: function() {
 				this.xSpeed *= -1;
 			},
@@ -73,12 +81,12 @@
 				this.xSpeed = nextValue;
 			},
 			modifyYSpeedBy: function(modification) {
-				modification = this.ySpeed < 0 ? modification * -0.5 : modification;
+				modification = this.ySpeed < 0 ? modification * -1 : modification;
 				this.ySpeed += modification;
 			}
 		};
 		function tick() {
-			updateGame();
+            updateGame();
 			draw();
 			window.setTimeout("tick()", 1000/60);
 		}
@@ -111,27 +119,50 @@
 			}
 
 		}
+
 		function draw() {
-      ctx.fillStyle = 'rgba(40, 45, 52, 255)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(40, 45, 52, 255)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 			renderPaddle(player);
 			renderPaddle(ai);
 			renderBall(ball);
+            window.addEventListener("keyup", function(event) {
+            event.preventDefault();
+             if (event.keyCode === 13) {
+                    //renderWelcome();
+                    tick();
+                }
+              });
+
 		}
+
+        function renderText() {
+            let ctx = document.querySelector('canvas').getContext('2d');
+            ctx.font = `48px "${FONT_NAME}"`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Press Enter to Start', window.innerWidth/2, window.innerHeight/2);
+        }
+
 		function renderPaddle(paddle) {
 			ctx.fillStyle = "white";
 			ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
 		}
 		function renderBall(ball) {
 			ctx.beginPath();
-       ctx.rect(ball.x, ball.y, 15, 15);
+            ctx.rect(ball.x, ball.y, 15, 15);
 			ctx.fillStyle = "white";
 			ctx.fill();
 		}
 		var heldDown = {};
 		window.addEventListener("keydown", function(keyInfo) { heldDown[event.keyCode] = true; }, false);
 		window.addEventListener("keyup", function(keyInfo) { delete heldDown[event.keyCode]; }, false);
-		tick();
+		//window.addEventListener("e", tick());
+		//renderWelcome();
+
+		draw();
+
+		//tick();
 	</script>
 </body>
 </html>
