@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pong</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <script>
+        var canvas = document.getElementById("canvas");
+        canvas.width = window.outerWidth;
+        canvas.height = window.innerHeight;
+        var ctx = canvas.getContext("2d");
+
+
+        //Creating paddles
+        function paddle( x, y, width, height) {
+        			this.x = x;
+        			this.y = y;
+        			this.width = width;
+        			this.height = height;
+        		}
+        		var player = new paddle (5, 200, 25, 100);
+        		var ai = new paddle (610, 200, 25, 100);
+
+
+        function tick() {
+            draw();
+            window.setTimeout("tick()", 1000/60);
+        }
+        function draw() {
+            ctx.fillStyle = 'rgba(40, 45, 52, 255)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        tick();
+
+    </script>
+</body>
+</html>
