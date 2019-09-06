@@ -6,33 +6,113 @@
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <canvas id="canvas" width="500" height="500"></canvas>
+    <canvas id="canvas" width="500" height="505"></canvas>
     <script>
         var canvas = document.getElementById("canvas");
         canvas.width = window.outerWidth;
         canvas.height = window.innerHeight;
         var ctx = canvas.getContext("2d");
 
+        function paddle( x, y, width, height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.hasCollidedWith = function(ball) {
+                var paddleLeftWall = this.x;
+                var paddleRightWall = this.x + this.width;
+                var paddleTopWall = this.y;
+                var paddleBottomWall = this.y + this.height;
+                if(ball.x > paddleLeftWall
+                    && ball.x < paddleRightWall
+                    && ball.y > paddleTopWall
+                    && ball.y < paddleBottomWall) {
+                    return true;
+                }
+                return false;
+            };
+
+            this.move = function(keyCode) {
+                var nextY = this.y;
+                if(keyCode == 40) {
+                nextY += 5;
+                } else if(keyCode == 38) {
+                  nextY += -5;
+                }
+                nextY = nextY < 0 ? 0 : nextY;
+                nextY = nextY + this.height > canvas.height ? canvas.height - this.height : nextY;
+                this.y = nextY;
+            };
+         }
+
 
         //Creating paddles
-        function paddle( x, y, width, height) {
-        			this.x = x;
-        			this.y = y;
-        			this.width = width;
-        			this.height = height;
-        		}
-        		var player = new paddle (5, 200, 25, 100);
-        		var ai = new paddle (610, 200, 25, 100);
+        var player = new paddle(25, 200, 25, 125);
+        var ai = new paddle(canvas.width-50, 200, 25, 125);
+
+
+        //Creating ball
+        var ball = { x: 320, y: 240, radius: 3, xSpeed: 2, ySpeed: 0,
+                    reverseX: function() {
+                        this.xSpeed *= -1;
+                    },
+                    reverseY: function() {
+                        this.ySpeed *= -1;
+                    }
+                };
+
+        function updateGame() {
+            ball.x += ball.xSpeed;
+            ball.y += ball.ySpeed;
+            if(player.hasCollidedWith(ball) || ai.hasCollidedWith(ball)) {
+                ball.reverseX();
+            }
+
+            for(var keyCode in heldDown) {
+                player.move(keyCode);
+            }
+        }
 
 
         function tick() {
+            updateGame();
             draw();
             window.setTimeout("tick()", 1000/60);
         }
+
+
         function draw() {
             ctx.fillStyle = 'rgba(40, 45, 52, 255)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            renderPaddle(player);
+            renderPaddle(ai);
+            renderBall(ball);
         }
+
+
+
+        function renderPaddle(paddle) {
+            ctx.fillStyle = "white";
+            ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+        }
+
+        function renderBall(ball) {
+            ctx.beginPath();
+            //ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI, false);
+            ctx.rect(ball.x, ball.y, 15, 15);
+            ctx.fillStyle = "white";
+            ctx.fill();
+        }
+
+        var heldDown = {};
+		    window.addEventListener("keydown", function(keyInfo) { heldDown[event.keyCode] = true; }, false);
+		    window.addEventListener("keyup", function(keyInfo) { delete heldDown[event.keyCode]; }, false);
+
+
+
+
+
+
         tick();
 
     </script>
